@@ -1,0 +1,12 @@
+:root {
+	/* sizes */
+	--xl: 1536px;
+	--lg: 1280px;
+	--md: 992px;
+	--sm: 768px;
+	--xs: 365px;
+
+	--min-width: 320px;
+	--max-width: 1920px;
+	--max-width-container: 1200px;
+}
