@@ -3,10 +3,10 @@
 
 	export let data: PageData;
 
-	type Game = 'Waiting for input' | 'In progress' | 'Game Over';
+	type Game = 'waiting for input' | 'in progress' | 'game over';
 	type Word = string;
 
-	let game: Game = 'Waiting for input';
+	let game: Game = 'waiting for input';
 	let typedLetter = '';
 
 	let words: Word[] = 'A bird in the hand is worth two in the bush'.split(' ');
@@ -20,7 +20,19 @@
 
 	function updateGameState() {}
 
-	function handleKeydown(event: KeyboardEvent) {}
+	function startGame() {
+		setGameState('in progress');
+	}
+
+	function setGameState(state: Game) {
+		game = state;
+	}
+
+	function handleKeydown(event: KeyboardEvent) {
+		if (game === 'waiting for input') {
+			startGame();
+		}
+	}
 </script>
 
 <div class="game" data-game={game}>
