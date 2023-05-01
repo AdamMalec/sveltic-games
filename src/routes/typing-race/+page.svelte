@@ -23,4 +23,25 @@
 	function handleKeydown(event: KeyboardEvent) {}
 </script>
 
-<div class="game" data-game={game}></div>
+<div class="game" data-game={game}>
+
+	<input
+		class="input"
+		type="text"
+		bind:this={inputEl}
+		bind:value={typedLetter}
+		on:input={updateGameState}
+		on:keydown={handleKeydown}
+	/>
+
+	<div class="words" bind:this={wordsEl}>
+		{#each words as word}
+			<span class="word">
+				{#each word as letter}
+					<span class="letter">{letter}</span>
+				{/each}
+			</span>
+		{/each}
+	</div>
+
+</div>
