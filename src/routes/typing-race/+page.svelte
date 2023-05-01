@@ -9,7 +9,7 @@
 	let game: Game = 'waiting for input';
 	let typedLetter = '';
 
-	let words: Word[] = 'A bird in the hand is worth two in the bush'.split(' ');
+	let words: Word[] = "There were ninety-seven New York advertising men in the hotel, and, the way they were monopolizing the long-distance lines, the girl in 507 had to wait from noon till almost two-thirty to get her call through. She used the time, though. She read an article in a women's pocket-size magazine, called \"Sex Is Fun- or Hell.\" She washed her comb and brush. She took the spot out of the skirt of her beige suit. She moved the button on her Saks blouse. She tweezed out two freshly surfaced hairs in her mole. When the operator finally rang her room, she was sitting on the window seat and had almost finished putting lacquer on the nails of her left hand. She was a girl who for a ringing phone dropped exactly nothing. She looked as if her phone had been ringing continually ever since she had reached puberty.".split(' ');
 	let wordIndex = 0;
 	let letterIndex = 0;
 	let correctLetters = 0;
@@ -123,7 +123,7 @@
 		gap: 0.4em;
 
 		width: 100%;
-		max-height: calc(var(--line-height) * var(--lines) * 1.34);
+		max-height: calc(var(--line-height) * var(--lines) * 1.8);
 
 		font-size: 1.4rem;
 
