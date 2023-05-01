@@ -93,3 +93,36 @@
 		{/each}
 	</div>
 </div>
+
+<style>
+	.words {
+		--line-height: 1em;
+		--lines: 3;
+
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4em;
+
+		width: 100%;
+		max-height: calc(var(--line-height) * var(--lines) * 1.34);
+
+		font-size: 1.4rem;
+
+		overflow: hidden;
+		user-select: none;
+	}
+
+	.letter {
+		opacity: 0.5;
+		transition: all 0.27s ease;
+	}
+
+	:global(.letter[data-letter='correct']) {
+		opacity: 0.9;
+	}
+
+	:global(.letter[data-letter='incorrect']) {
+		color: #e76e55;
+		opacity: 1;
+	}
+</style>
