@@ -18,7 +18,45 @@
 	let letterEl: HTMLSpanElement;
 	let inputEl: HTMLInputElement;
 
-	function updateGameState() {}
+	function updateGameState() {
+		setLetter();
+		checkLetter();
+		nextLetter();
+		resetLetter();
+	}
+
+	function setLetter() {
+		const isWordCompleted = letterIndex > words[wordIndex].length - 1;
+
+		if (!isWordCompleted) {
+			letterEl = wordsEl.children[wordIndex].children[letterIndex] as HTMLSpanElement;
+		}
+	}
+
+	function checkLetter() {
+		const currentLetter = words[wordIndex][letterIndex];
+
+		if (typedLetter === currentLetter) {
+			letterEl.dataset.letter = 'correct';
+			increaseScore();
+		}
+
+		if (typedLetter !== currentLetter) {
+			letterEl.dataset.letter = 'incorrect';
+		}
+	}
+
+	function increaseScore() {
+		correctLetters += 1;
+	}
+
+	function nextLetter() {
+		letterIndex += 1;
+	}
+
+	function resetLetter() {
+		typedLetter = '';
+	}
 
 	function startGame() {
 		setGameState('in progress');
@@ -36,7 +74,6 @@
 </script>
 
 <div class="game" data-game={game}>
-
 	<input
 		class="input"
 		type="text"
@@ -55,5 +92,4 @@
 			</span>
 		{/each}
 	</div>
-
 </div>
