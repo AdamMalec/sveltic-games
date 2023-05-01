@@ -58,6 +58,17 @@
 		typedLetter = '';
 	}
 
+	function nextWord() {
+		const isOneLetterWord = words[wordIndex].length === 1;
+		const isNotFirstLetter = letterIndex !== 0;
+
+		if (isOneLetterWord || isNotFirstLetter) {
+			wordIndex += 1;
+			letterIndex = 0;
+			increaseScore();
+		}
+	}
+
 	function startGame() {
 		setGameState('in progress');
 	}
@@ -69,6 +80,14 @@
 	function handleKeydown(event: KeyboardEvent) {
 		if (game === 'waiting for input') {
 			startGame();
+		}
+
+		if (event.code === 'Space') {
+			event.preventDefault();
+
+			if (game === 'in progress') {
+				nextWord();
+			}
 		}
 	}
 </script>
