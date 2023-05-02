@@ -9,7 +9,10 @@
 	let game: Game = 'waiting for input';
 	let typedLetter = '';
 
-	let words: Word[] = "There were ninety-seven New York advertising men in the hotel, and, the way they were monopolizing the long-distance lines, the girl in 507 had to wait from noon till almost two-thirty to get her call through. She used the time, though. She read an article in a women's pocket-size magazine, called \"Sex Is Fun- or Hell.\" She washed her comb and brush. She took the spot out of the skirt of her beige suit. She moved the button on her Saks blouse. She tweezed out two freshly surfaced hairs in her mole. When the operator finally rang her room, she was sitting on the window seat and had almost finished putting lacquer on the nails of her left hand. She was a girl who for a ringing phone dropped exactly nothing. She looked as if her phone had been ringing continually ever since she had reached puberty.".split(' ');
+	let words: Word[] =
+		'There were ninety-seven New York advertising men in the hotel, and, the way they were monopolizing the long-distance lines, the girl in 507 had to wait from noon till almost two-thirty to get her call through. She used the time, though. She read an article in a women\'s pocket-size magazine, called "Sex Is Fun- or Hell." She washed her comb and brush. She took the spot out of the skirt of her beige suit. She moved the button on her Saks blouse. She tweezed out two freshly surfaced hairs in her mole. When the operator finally rang her room, she was sitting on the window seat and had almost finished putting lacquer on the nails of her left hand. She was a girl who for a ringing phone dropped exactly nothing. She looked as if her phone had been ringing continually ever since she had reached puberty.'.split(
+			' '
+		);
 	let wordIndex = 0;
 	let letterIndex = 0;
 	let correctLetters = 0;
@@ -17,6 +20,7 @@
 	let wordsEl: HTMLDivElement;
 	let letterEl: HTMLSpanElement;
 	let inputEl: HTMLInputElement;
+	let caretEl: HTMLDivElement;
 
 	function updateGameState() {
 		setLetter();
@@ -24,6 +28,7 @@
 		nextLetter();
 		resetLetter();
 		updateLine();
+		moveCaret();
 	}
 
 	function setLetter() {
@@ -65,7 +70,7 @@
 		const wordY = wordEl.getBoundingClientRect().y;
 
 		if (wordY > wordsY) {
-			wordEl.scrollIntoView({block: 'center'});
+			wordEl.scrollIntoView({ block: 'center' });
 		}
 	}
 
@@ -77,7 +82,16 @@
 			wordIndex += 1;
 			letterIndex = 0;
 			increaseScore();
+			moveCaret();
 		}
+	}
+
+	function moveCaret() {
+		const offset = 2;
+		const { offsetTop, offsetLeft, offsetWidth } = letterEl;
+
+		caretEl.style.top = `${offsetTop}px`;
+		caretEl.style.left = `${offsetLeft + offsetWidth - offset}px`;
 	}
 
 	function startGame() {
@@ -121,6 +135,7 @@
 				{/each}
 			</span>
 		{/each}
+		<div class="caret" bind:this={caretEl} />
 	</div>
 </div>
 
@@ -128,6 +143,8 @@
 	.words {
 		--line-height: 1em;
 		--lines: 3;
+
+		position: relative;
 
 		display: flex;
 		flex-wrap: wrap;
@@ -142,6 +159,10 @@
 		user-select: none;
 	}
 
+	.word {
+		margin-right: 0.6rem;
+	}
+
 	.letter {
 		opacity: 0.5;
 		transition: all 0.27s ease;
@@ -154,5 +175,26 @@
 	:global(.letter[data-letter='incorrect']) {
 		color: #e76e55;
 		opacity: 1;
+	}
+
+	.caret {
+		position: absolute;
+		top: 0;
+		height: 1.6rem;
+		border-right: 4px solid #92cc41;
+		animation: impulseCaret 1s infinite;
+		transition: all 0.06s ease;
+	}
+
+	@keyframes impulseCaret {
+		0% {
+			opacity: 0;
+		}
+		50% {
+			opacity: 1;
+		}
+		100% {
+			opacity: 0;
+		}
 	}
 </style>
