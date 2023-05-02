@@ -23,6 +23,7 @@
 		checkLetter();
 		nextLetter();
 		resetLetter();
+		updateLine();
 	}
 
 	function setLetter() {
@@ -56,6 +57,16 @@
 
 	function resetLetter() {
 		typedLetter = '';
+	}
+
+	function updateLine() {
+		const wordEl = wordsEl.children[wordIndex];
+		const wordsY = wordsEl.getBoundingClientRect().y;
+		const wordY = wordEl.getBoundingClientRect().y;
+
+		if (wordY > wordsY) {
+			wordEl.scrollIntoView({block: 'center'});
+		}
 	}
 
 	function nextWord() {
