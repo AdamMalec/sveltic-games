@@ -7,6 +7,7 @@
 	type Word = string;
 
 	let game: Game = 'waiting for input';
+	let seconds = 60;
 	let typedLetter = '';
 
 	let words: Word[] =
@@ -96,10 +97,29 @@
 
 	function startGame() {
 		setGameState('in progress');
+		setGameTimer();
 	}
 
 	function setGameState(state: Game) {
 		game = state;
+	}
+
+	function setGameTimer() {
+		function gameTimer() {
+			if (seconds > 0) {
+				seconds -= 1;
+			}
+
+			if (game === 'waiting for input' || seconds === 0) {
+				clearInterval(interval);
+			}
+
+			if (seconds === 0) {
+				setGameState('game over');
+			}
+		}
+
+		const interval = setInterval(gameTimer, 1000);
 	}
 
 	function handleKeydown(event: KeyboardEvent) {
@@ -127,6 +147,8 @@
 		on:keydown={handleKeydown}
 	/>
 
+	<div class="time">{seconds}</div>
+
 	<div class="words" bind:this={wordsEl}>
 		{#each words as word}
 			<span class="word">
@@ -140,6 +162,23 @@
 </div>
 
 <style>
+	.game {
+		position: relative;
+	}
+
+	.time {
+		position: absolute;
+		top: -3rem;
+		font-size: 1.6rem;
+		color: #e76e55;
+		opacity: 0;
+		transition: all 0.2 ease;
+	}
+
+	:global(.game[data-game='in progress'] .time) {
+		opacity: 1;
+	}
+
 	.words {
 		--line-height: 1em;
 		--lines: 3;
