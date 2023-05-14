@@ -1,6 +1,9 @@
 <script lang="ts">
 	import type { PageData } from './$types';
+	import { onMount } from 'svelte';
 	import { tweened } from 'svelte/motion';
+	import { blur } from 'svelte/transition';
+
 
 	export let data: PageData;
 
@@ -12,12 +15,11 @@
 	let typedLetter = '';
 
 	let words: Word[] =
-		'There were ninety-seven New York advertising men in the hotel, and, the way they were monopolizing the long-distance lines, the girl in 507 had to wait from noon till almost two-thirty to get her call through. She used the time, though. She read an article in a women\'s pocket-size magazine, called "Sex Is Fun- or Hell." She washed her comb and brush. She took the spot out of the skirt of her beige suit. She moved the button on her Saks blouse. She tweezed out two freshly surfaced hairs in her mole. When the operator finally rang her room, she was sitting on the window seat and had almost finished putting lacquer on the nails of her left hand. She was a girl who for a ringing phone dropped exactly nothing. She looked as if her phone had been ringing continually ever since she had reached puberty.'.split(
-			' '
-		);
+		'There were ninety-seven New York advertising men in the hotel, and, the way they were monopolizing the long-distance lines, the girl in 507 had to wait from noon till almost two-thirty to get her call through. She used the time, though. She read an article in a women\'s pocket-size magazine, called "Sex Is Fun- or Hell." She washed her comb and brush. She took the spot out of the skirt of her beige suit. She moved the button on her Saks blouse. She tweezed out two freshly surfaced hairs in her mole. When the operator finally rang her room, she was sitting on the window seat and had almost finished putting lacquer on the nails of her left hand. She was a girl who for a ringing phone dropped exactly nothing. She looked as if her phone had been ringing continually ever since she had reached puberty.'.split(' ');
 	let wordIndex = 0;
 	let letterIndex = 0;
 	let correctLetters = 0;
+	let toggleReset = false;
 
 	let wordsPerMinute = tweened(0, { delay: 300, duration: 1000 });
 	let precision = tweened(0, { delay: 300, duration: 1000 });
@@ -26,6 +28,22 @@
 	let letterEl: HTMLSpanElement;
 	let inputEl: HTMLInputElement;
 	let caretEl: HTMLDivElement;
+
+	function resetGame() {
+		toggleReset = !toggleReset;
+
+		setGameState('waiting for input');
+		seconds = 60;
+		typedLetter = '';
+		wordIndex = 0;
+		letterIndex = 0;
+		correctLetters = 0;
+
+		$wordsPerMinute = 0;
+		$precision = 0;
+
+		focusInput();
+	}
 
 	function updateGameState() {
 		setLetter();
@@ -127,6 +145,10 @@
 		const interval = setInterval(gameTimer, 1000);
 	}
 
+	function focusInput() {
+		inputEl.focus()
+	}
+
 	function handleKeydown(event: KeyboardEvent) {
 		if (game === 'waiting for input') {
 			startGame();
@@ -155,6 +177,10 @@
 		$wordsPerMinute = getWordsPerMinute();
 		$precision = getPrecision();
 	}
+
+	onMount(() => {
+		focusInput();
+	})
 </script>
 
 <div class="game" data-game={game}>
@@ -168,17 +194,24 @@
 	/>
 
 	<div class="time">{seconds}</div>
+	{#key toggleReset}
+		<div
+			class="words"
+			bind:this={wordsEl}
+			in:blur|local
+			>
+			{#each words as word}
+				<span class="word">
+					{#each word as letter}
+						<span class="letter">{letter}</span>
+					{/each}
+				</span>
+			{/each}
+			<div class="caret" bind:this={caretEl} />
+		</div>
+	{/key}
 
-	<div class="words" bind:this={wordsEl}>
-		{#each words as word}
-			<span class="word">
-				{#each word as letter}
-					<span class="letter">{letter}</span>
-				{/each}
-			</span>
-		{/each}
-		<div class="caret" bind:this={caretEl} />
-	</div>
+	<button class="nes-btn is-primary" on:click={resetGame}>Restart </button>
 </div>
 
 {#if game === 'game over'}
@@ -197,8 +230,8 @@
 				</div>
 
 				<menu class="dialog-menu">
-					<button class="nes-btn is-primary">Restart</button>
-					<button class="nes-btn">Main menu</button>
+					<button class="nes-btn is-primary" on:click={resetGame}>Try again</button>
+					<a href="/" class="nes-btn">Main menu</a>
 				</menu>
 			</form>
 		</dialog>
@@ -225,7 +258,7 @@
 
 	.words {
 		--line-height: 1em;
-		--lines: 3;
+		--lines: 5;
 
 		position: relative;
 
