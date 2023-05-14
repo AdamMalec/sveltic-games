@@ -185,7 +185,7 @@
 
 <div class="game" data-game={game}>
 	<input
-		class="input"
+		class="sr-only"
 		type="text"
 		bind:this={inputEl}
 		bind:value={typedLetter}
