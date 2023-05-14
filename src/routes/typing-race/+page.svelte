@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { PageData } from './$types';
+	import { tweened } from 'svelte/motion';
 
 	export let data: PageData;
 
@@ -17,6 +18,9 @@
 	let wordIndex = 0;
 	let letterIndex = 0;
 	let correctLetters = 0;
+
+	let wordsPerMinute = tweened(0, { delay: 300, duration: 1000 });
+	let precision = tweened(0, { delay: 300, duration: 1000 });
 
 	let wordsEl: HTMLDivElement;
 	let letterEl: HTMLSpanElement;
@@ -116,6 +120,7 @@
 
 			if (seconds === 0) {
 				setGameState('game over');
+				getResults();
 			}
 		}
 
@@ -134,6 +139,21 @@
 				nextWord();
 			}
 		}
+	}
+
+	function getWordsPerMinute() {
+		const word = 5;
+		return Math.floor(correctLetters / word);
+	}
+
+	function getPrecision() {
+		const totalLetters = words.reduce((count, word) => count + word.length, 0);
+		return Math.floor((correctLetters / totalLetters) * 100);
+	}
+
+	function getResults() {
+		$wordsPerMinute = getWordsPerMinute();
+		$precision = getPrecision();
 	}
 </script>
 
@@ -160,6 +180,30 @@
 		<div class="caret" bind:this={caretEl} />
 	</div>
 </div>
+
+{#if game === 'game over'}
+	<section>
+		<dialog class="nes-dialog" id="dialog-default" open>
+			<form method="dialog">
+				<div class="results">
+					<div class="result">
+						<p class="title">wpm</p>
+						<p class="score">{Math.trunc($wordsPerMinute)}</p>
+					</div>
+					<div class="result">
+						<p class="title">precision</p>
+						<p class="score">{Math.trunc($precision)}%</p>
+					</div>
+				</div>
+
+				<menu class="dialog-menu">
+					<button class="nes-btn is-primary">Restart</button>
+					<button class="nes-btn">Main menu</button>
+				</menu>
+			</form>
+		</dialog>
+	</section>
+{/if}
 
 <style>
 	.game {
@@ -235,5 +279,32 @@
 		100% {
 			opacity: 0;
 		}
+	}
+
+	:global(.nes-dialog) {
+		min-width: 320px;
+		width: 42%;
+	}
+
+	.results {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+	}
+
+	:global(.dialog-menu) {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		padding: 0;
+	}
+
+	:global(.dialog-menu button) {
+		width: 180px;
+	}
+
+	:global(.dialog-menu button:first-of-type) {
+		margin-bottom: 1rem;
 	}
 </style>
