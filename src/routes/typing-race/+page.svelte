@@ -4,7 +4,6 @@
 	import { tweened } from 'svelte/motion';
 	import { blur } from 'svelte/transition';
 
-
 	export let data: PageData;
 
 	type Game = 'waiting for input' | 'in progress' | 'game over';
@@ -146,7 +145,7 @@
 	}
 
 	function focusInput() {
-		inputEl.focus()
+		inputEl.focus();
 	}
 
 	function handleKeydown(event: KeyboardEvent) {
@@ -180,7 +179,7 @@
 
 	onMount(() => {
 		focusInput();
-	})
+	});
 </script>
 
 <div class="game" data-game={game}>
@@ -193,13 +192,10 @@
 		on:keydown={handleKeydown}
 	/>
 
-	<div class="time">{seconds}</div>
+	<div class="time">Time:<span>{seconds}</span></div>
+
 	{#key toggleReset}
-		<div
-			class="words"
-			bind:this={wordsEl}
-			in:blur|local
-			>
+		<div class="words" bind:this={wordsEl} in:blur|local>
 			{#each words as word}
 				<span class="word">
 					{#each word as letter}
@@ -211,45 +207,50 @@
 		</div>
 	{/key}
 
-	<button class="nes-btn is-primary" on:click={resetGame}>Restart </button>
+	<button class="nes-btn is-primary restart-btn" on:click={resetGame}>Restart</button>
+
+	{#if game === 'game over'}
+		<section>
+			<dialog class="nes-dialog" id="dialog-default" open>
+				<form method="dialog">
+					<div class="results">
+						<div class="result">
+							<p class="title">wpm</p>
+							<p class="score">{Math.trunc($wordsPerMinute)}</p>
+						</div>
+						<div class="result">
+							<p class="title">precision</p>
+							<p class="score">{Math.trunc($precision)}%</p>
+						</div>
+					</div>
+
+					<menu class="dialog-menu">
+						<button class="nes-btn is-primary" on:click={resetGame}>Try again</button>
+						<a href="/" class="nes-btn">Main menu</a>
+					</menu>
+				</form>
+			</dialog>
+		</section>
+	{/if}
 </div>
-
-{#if game === 'game over'}
-	<section>
-		<dialog class="nes-dialog" id="dialog-default" open>
-			<form method="dialog">
-				<div class="results">
-					<div class="result">
-						<p class="title">wpm</p>
-						<p class="score">{Math.trunc($wordsPerMinute)}</p>
-					</div>
-					<div class="result">
-						<p class="title">precision</p>
-						<p class="score">{Math.trunc($precision)}%</p>
-					</div>
-				</div>
-
-				<menu class="dialog-menu">
-					<button class="nes-btn is-primary" on:click={resetGame}>Try again</button>
-					<a href="/" class="nes-btn">Main menu</a>
-				</menu>
-			</form>
-		</dialog>
-	</section>
-{/if}
 
 <style>
 	.game {
 		position: relative;
+		padding-top: 6rem;
 	}
 
 	.time {
 		position: absolute;
 		top: -3rem;
+		right: 0;
 		font-size: 1.6rem;
-		color: #e76e55;
 		opacity: 0;
 		transition: all 0.2 ease;
+	}
+
+	:global(.time span) {
+		color: #e76e55;
 	}
 
 	:global(.game[data-game='in progress'] .time) {
@@ -297,7 +298,7 @@
 		position: absolute;
 		top: 0;
 		height: 1.6rem;
-		border-right: 4px solid #92cc41;
+		border-right: 4px solid #209cee;
 		animation: impulseCaret 1s infinite;
 		transition: all 0.06s ease;
 	}
@@ -314,16 +315,38 @@
 		}
 	}
 
-	:global(.nes-dialog) {
-		min-width: 320px;
-		width: 42%;
+	.restart-btn {
+		display: block;
+		margin: 6rem auto 0.4rem auto;
 	}
 
-	.results {
+	:global(.nes-dialog) {
+		top: 3rem;
+		min-width: 320px;
+		width: 38%;
+	}
+
+	:global(.results) {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		height: 240px;
 		text-align: center;
+	}
+
+	:global(.result) {
+		margin-bottom: 0.6rem;
+	}
+
+	:global(.result .title) {
+		margin-bottom: 0.4rem;
+		font-size: 1.4rem;
+		text-transform: uppercase;
+	}
+
+	:global(.results .score) {
+		font-size: 1.6rem;
+		color: #e76e55;
 	}
 
 	:global(.dialog-menu) {
