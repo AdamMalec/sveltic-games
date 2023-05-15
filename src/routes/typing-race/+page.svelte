@@ -28,6 +28,9 @@
 	let inputEl: HTMLInputElement;
 	let caretEl: HTMLDivElement;
 
+	const isWordCompleted = () => letterIndex > words[wordIndex].length - 1;
+	const isOneLetterWord = () => words[wordIndex].length === 1;
+
 	function resetGame() {
 		toggleReset = !toggleReset;
 
@@ -54,9 +57,7 @@
 	}
 
 	function setLetter() {
-		const isWordCompleted = letterIndex > words[wordIndex].length - 1;
-
-		if (!isWordCompleted) {
+		if (!isWordCompleted()) {
 			letterEl = wordsEl.children[wordIndex].children[letterIndex] as HTMLSpanElement;
 		}
 	}
@@ -97,23 +98,25 @@
 	}
 
 	function nextWord() {
-		const isOneLetterWord = words[wordIndex].length === 1;
-		const isNotFirstLetter = letterIndex !== 0;
-
-		if (isOneLetterWord || isNotFirstLetter) {
+		if (isOneLetterWord() || isWordCompleted()) {
 			wordIndex += 1;
 			letterIndex = 0;
-			increaseScore();
-			moveCaret();
+			setLetter();
+			moveCaret('whitespace');
 		}
 	}
 
-	function moveCaret() {
+	function moveCaret(whitespace?: string) {
 		const offset = 2;
 		const { offsetTop, offsetLeft, offsetWidth } = letterEl;
 
 		caretEl.style.top = `${offsetTop}px`;
-		caretEl.style.left = `${offsetLeft + offsetWidth - offset}px`;
+
+		if (whitespace) {
+			caretEl.style.left = `${offsetLeft - offset}px`;
+		} else {
+			caretEl.style.left = `${offsetLeft + offsetWidth - offset}px`;
+		}
 	}
 
 	function startGame() {
