@@ -32,6 +32,7 @@
 	const isOneLetterWord = () => words[wordIndex].length === 1;
 
 	function resetGame() {
+		inputEl.disabled = false;
 		toggleReset = !toggleReset;
 
 		setGameState('waiting for input');
@@ -139,6 +140,7 @@
 			}
 
 			if (seconds === 0) {
+				inputEl.disabled = true;
 				setGameState('game over');
 				getResults();
 			}
@@ -148,6 +150,10 @@
 	}
 
 	function focusInput() {
+		inputEl.focus();
+	}
+
+	function blurInput() {
 		inputEl.focus();
 	}
 
@@ -193,6 +199,7 @@
 		bind:value={typedLetter}
 		on:input={updateGameState}
 		on:keydown={handleKeydown}
+		on:blur={blurInput}
 	/>
 
 	<div class="time">Time:<span>{seconds}</span></div>
