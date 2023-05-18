@@ -1,10 +1,7 @@
 <script lang="ts">
-	import type { PageData } from './$types';
 	import { onMount } from 'svelte';
 	import { tweened } from 'svelte/motion';
 	import { blur } from 'svelte/transition';
-
-	export let data: PageData;
 
 	type Game = 'waiting for input' | 'in progress' | 'game over';
 	type Word = string;
