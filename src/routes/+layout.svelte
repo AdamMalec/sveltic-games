@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-	<title>Sveltic Games</title>
+	<title>Sveltic Gam8s</title>
 </svelte:head>
 
 <main>
