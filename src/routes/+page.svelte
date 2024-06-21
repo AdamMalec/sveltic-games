@@ -1,8 +1,12 @@
+<svelte:head>
+	<title>Sveltic Gam8s</title>
+</svelte:head>
+
 <nav class="menu">
 	<ul class="menu__list">
 		<li class="menu__item"><a href="typing-race">Typing race</a></li>
-		<li class="menu__item"><a href="blood-money">Blood money (in process)</a></li>
-		<li class="menu__item"><a href="hop-tower">Hop tower (in process)</a></li>
+		<li class="menu__item"><a href="match-shooting">Match shooting</a></li>
+		<li class="menu__item"><a href="hop-tower" class="draft">Hop tower</a></li>
 	</ul>
 </nav>
 
@@ -18,5 +22,10 @@
 		padding: 0.8rem;
 		font-size: 2rem;
 		text-transform: uppercase;
+	}
+
+	.draft {
+		opacity: 0.4;
+		pointer-events: none;
 	}
 </style>
