@@ -7,11 +7,13 @@
 	type Word = string;
 
 	let game: Game = 'waiting for input';
-	let seconds = 60;
+	let seconds = 10;
 	let typedLetter = '';
 
 	let words: Word[] =
-		`If you really want to hear about it, the first thing you’ll probably want to know is where I was born, an what my lousy childhood was like, and how my parents were occupied and all before they had me, and all that David Copperfield kind of crap, but I don’t feel like going into it, if you want to know the truth. In the first place, that stuff bores me, and in the second place, my parents would have about two hemorrhages apiece if I told anything pretty personal about them. They’re quite touchy about anything like that, especially my father. They’re nice and all—I’m not saying that—but they’re also touchy as hell. Besides, I’m not going to tell you my whole goddam autobiography or anything. I’ll just tell you about this madman stuff that happened to me around last Christmas just before I got pretty run-down and had to come out here and take it easy. I mean that’s all I told D.B. about, and he’s my brother and all. He’s in Hollywood. That isn’t too far from this crumby place, and he comes over and visits me practically every week end. He’s going to drive me home when I go home next month maybe. He just got a Jaguar. One of those little English jobs that can do around two hundred miles an hour. It cost him damn near four thousand bucks. He’s got a lot of dough, now. He didn’t use to. He used to be just a regular writer, when he was home. He wrote this terrific book of short stories, The Secret Goldfish, in case you never heard of him. The best one in it was “The Secret Goldfish.” It was about this little kid that wouldn’t let anybody look at his goldfish because he’d bought it with his own money. It killed me. Now he’s out in Hollywood, D.B., being a prostitute. If there’s one thing I hate, it’s the movies. Don’t even mention them to me.`.split(' ');
+		`If you really want to hear about it, the first thing you’ll probably want to know is where I was born, an what my lousy childhood was like, and how my parents were occupied and all before they had me, and all that David Copperfield kind of crap, but I don’t feel like going into it, if you want to know the truth. In the first place, that stuff bores me, and in the second place, my parents would have about two hemorrhages apiece if I told anything pretty personal about them. They’re quite touchy about anything like that, especially my father. They’re nice and all—I’m not saying that—but they’re also touchy as hell. Besides, I’m not going to tell you my whole goddam autobiography or anything. I’ll just tell you about this madman stuff that happened to me around last Christmas just before I got pretty run-down and had to come out here and take it easy. I mean that’s all I told D.B. about, and he’s my brother and all. He’s in Hollywood. That isn’t too far from this crumby place, and he comes over and visits me practically every week end. He’s going to drive me home when I go home next month maybe. He just got a Jaguar. One of those little English jobs that can do around two hundred miles an hour. It cost him damn near four thousand bucks. He’s got a lot of dough, now. He didn’t use to. He used to be just a regular writer, when he was home. He wrote this terrific book of short stories, The Secret Goldfish, in case you never heard of him. The best one in it was “The Secret Goldfish.” It was about this little kid that wouldn’t let anybody look at his goldfish because he’d bought it with his own money. It killed me. Now he’s out in Hollywood, D.B., being a prostitute. If there’s one thing I hate, it’s the movies. Don’t even mention them to me.`.split(
+			' '
+		);
 	let wordIndex = 0;
 	let letterIndex = 0;
 	let correctLetters = 0;
@@ -188,79 +190,69 @@
 	});
 </script>
 
-<div class="game" data-game={game}>
-	<input
-		class="sr-only"
-		type="text"
-		bind:this={inputEl}
-		bind:value={typedLetter}
-		on:input={updateGameState}
-		on:keydown={handleKeydown}
-		on:blur={blurInput}
-	/>
+<svelte:head>
+	<title>Sveltic Gam8s: Typing Race</title>
+</svelte:head>
 
-	<div class="time">Time:<span>{seconds}</span></div>
-
-	{#key toggleReset}
-		<div class="words" bind:this={wordsEl} in:blur|local>
-			{#each words as word}
-				<span class="word">
-					{#each word as letter}
-						<span class="letter">{letter}</span>
-					{/each}
-				</span>
-			{/each}
-			<div class="caret" bind:this={caretEl} />
-		</div>
-	{/key}
-
-	<button class="nes-btn is-primary restart-btn" on:click={resetGame}>Restart</button>
-
-	{#if game === 'game over'}
-		<section>
-			<dialog class="nes-dialog" id="dialog-default" open>
-				<form method="dialog">
-					<div class="results">
-						<div class="result">
-							<p class="title">wpm</p>
-							<p class="score">{Math.trunc($wordsPerMinute)}</p>
-						</div>
-						<div class="result">
-							<p class="title">precision</p>
-							<p class="score">{Math.trunc($precision)}%</p>
-						</div>
-					</div>
-
-					<menu class="dialog-menu">
-						<button class="nes-btn is-primary" on:click={resetGame}>Try again</button>
-						<a href="/" class="nes-btn">Main menu</a>
-					</menu>
-				</form>
-			</dialog>
-		</section>
-	{/if}
+<div class="header">
+	<h2>Typing race</h2>
+	<p class="timer" class:timer--active={game === 'in progress'}>Time:<span>{seconds}</span></p>
 </div>
 
+<input
+	class="sr-only"
+	type="text"
+	bind:this={inputEl}
+	bind:value={typedLetter}
+	on:input={updateGameState}
+	on:keydown={handleKeydown}
+	on:blur={blurInput}
+/>
+
+{#key toggleReset}
+	<div class="words" bind:this={wordsEl} in:blur|local>
+		{#each words as word}
+			<span class="word">
+				{#each word as letter}
+					<span class="letter">{letter}</span>
+				{/each}
+			</span>
+		{/each}
+		<div class="caret" bind:this={caretEl} />
+	</div>
+{/key}
+
+<button class="nes-btn is-primary restart-btn" on:click={resetGame}>Restart</button>
+
+{#if game === 'game over'}
+	<dialog class="nes-dialog" open>
+		<form method="dialog">
+			<div class="results">
+				<div class="result">
+					<p class="title">wpm</p>
+					<p class="score">{Math.trunc($wordsPerMinute)}</p>
+				</div>
+				<div class="result">
+					<p class="title">precision</p>
+					<p class="score">{Math.trunc($precision)}%</p>
+				</div>
+			</div>
+
+			<menu class="dialog-menu">
+				<button class="nes-btn is-primary" on:click={resetGame}>Try again</button>
+				<a href="/" class="nes-btn">Main menu</a>
+			</menu>
+		</form>
+	</dialog>
+{/if}
+
 <style>
-	.game {
-		position: relative;
-		padding-top: 6rem;
-	}
-
-	.time {
-		position: absolute;
-		top: -3rem;
-		right: 0;
-		font-size: 1.6rem;
+	.timer {
 		opacity: 0;
-		transition: all 0.2 ease;
+		transition: all 0.3s ease;
 	}
 
-	:global(.time span) {
-		color: #e76e55;
-	}
-
-	:global(.game[data-game='in progress'] .time) {
+	.timer--active {
 		opacity: 1;
 	}
 
@@ -323,12 +315,12 @@
 	}
 
 	.restart-btn {
+		align-self: start;
 		display: block;
 		margin: 6rem auto 0.4rem auto;
 	}
 
 	:global(.nes-dialog) {
-		top: 3rem;
 		min-width: 320px;
 		width: 38%;
 	}
@@ -360,14 +352,11 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		gap: 1rem;
 		padding: 0;
 	}
 
 	:global(.dialog-menu button) {
 		width: 180px;
-	}
-
-	:global(.dialog-menu button:first-of-type) {
-		margin-bottom: 1rem;
 	}
 </style>
