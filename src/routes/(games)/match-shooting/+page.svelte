@@ -1,11 +1,10 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import Dialog from '$lib/components/Dialog.svelte';
 	import { emoji } from '../../../emoji';
 
 	type GameState = 'start' | 'playing' | 'paused' | 'win' | 'lose';
 
-	let state: GameState = 'playing';
+	let state: GameState = 'start';
 	let size = 20;
 	let grid = createGrid();
 	let maxMatches = grid.length / 2;
@@ -91,6 +90,10 @@
 		if (e.key === 'Escape') {
 			e.preventDefault();
 			switch (state) {
+				case 'start':
+					state = 'paused';
+					dialog.showModal();
+					break;
 				case 'playing':
 					state = 'paused';
 					dialog.showModal();
@@ -118,13 +121,11 @@
 
 <svelte:window on:keydown={pauseGame} />
 
-<!-- {#if state === 'start'}
-	<button on:click={() => (state = 'playing')}> Play </button>
-{/if} -->
-
 <div class="header">
 	<h2>Match shooting</h2>
-	<p class="timer">Time:<span>{seconds}</span></p>
+	<p class="timer" class:timer--active={state === 'playing' || (state === 'paused' && seconds !== 60)}>
+		Time:<span>{seconds}</span>
+	</p>
 </div>
 
 <div class="cards">
@@ -137,6 +138,9 @@
 			class:selected={isSelected}
 			class:flip={isSelectedOrMatch}
 			on:click={() => selectCard(cardIndex)}
+			on:click={() => {
+				if (state === 'start') state = 'playing';
+			}}
 			disabled={isSelectedOrMatch}
 		>
 			<div class="back" class:matched={isMatched}>{card}</div>
@@ -146,9 +150,9 @@
 
 <Dialog bind:dialog>
 	<h2 slot="content">
-		{#if state === 'win'}You win!{/if}
-		{#if state === 'lose'}You lose{/if}
-		{#if state === 'paused'}Game paused{/if}
+		{#if state === 'win'}You Win&nbsp;<i class="nes-icon trophy is-medium"></i>{/if}
+		{#if state === 'lose'}You Lose{/if}
+		{#if state === 'paused'}Game Paused{/if}
 	</h2>
 
 	{#if state === 'paused'}
@@ -165,7 +169,7 @@
 		<button
 			class="nes-btn"
 			on:click={() => {
-				state = 'playing';
+				state = 'start';
 				dialog.close();
 				resetGame();
 			}}
@@ -176,19 +180,18 @@
 		<button
 			class="nes-btn"
 			on:click={() => {
-				state = 'playing';
+				state = 'start';
 				dialog.close();
 				resetGame();
 			}}
 		>
-			Play again
+			Play&nbsp;again
 		</button>
 	{/if}
 </Dialog>
 
 <style>
 	.header h2 {
-		flex-grow: 1;
 		text-align: center;
 	}
 
@@ -206,6 +209,7 @@
 		background-color: var(--color-bg-2);
 		transition: rotate 0.3s ease-out;
 		transform-style: preserve-3d;
+		user-select: none;
 
 		&.selected {
 			background-color: var(--color-green);
