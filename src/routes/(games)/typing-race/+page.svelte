@@ -1,13 +1,14 @@
 <script lang="ts">
+	import Dialog from '$lib/components/Dialog.svelte';
 	import { onMount } from 'svelte';
 	import { tweened } from 'svelte/motion';
 	import { blur } from 'svelte/transition';
 
-	type Game = 'waiting for input' | 'in progress' | 'game over';
+	type Game = 'waiting for input' | 'in progress' | 'game over' | 'paused';
 	type Word = string;
 
 	let game: Game = 'waiting for input';
-	let seconds = 10;
+	let seconds = 60;
 	let typedLetter = '';
 
 	let words: Word[] =
@@ -19,13 +20,16 @@
 	let correctLetters = 0;
 	let toggleReset = false;
 
-	let wordsPerMinute = tweened(0, { delay: 300, duration: 1000 });
-	let precision = tweened(0, { delay: 300, duration: 1000 });
+	let wordsPerMinute = tweened(0, { delay: 200, duration: 500 });
+	let precision = tweened(0, { delay: 200, duration: 500 });
 
 	let wordsEl: HTMLDivElement;
-	let letterEl: HTMLSpanElement;
+	let letterEl: HTMLSpanElement | undefined;
 	let inputEl: HTMLInputElement;
 	let caretEl: HTMLDivElement;
+
+	let dialog: HTMLDialogElement;
+	let messageLayout: HTMLElement;
 
 	const isWordCompleted = () => letterIndex > words[wordIndex].length - 1;
 	const isOneLetterWord = () => words[wordIndex].length === 1;
@@ -33,8 +37,10 @@
 	function resetGame() {
 		inputEl.disabled = false;
 		toggleReset = !toggleReset;
+		letterEl = undefined;
 
 		setGameState('waiting for input');
+		messageLayout.classList.remove('info-layout--active')
 		seconds = 60;
 		typedLetter = '';
 		wordIndex = 0;
@@ -65,13 +71,19 @@
 	function checkLetter() {
 		const currentLetter = words[wordIndex][letterIndex];
 
-		if (typedLetter === currentLetter) {
-			letterEl.dataset.letter = 'correct';
-			increaseScore();
-		}
+		if (typedLetter.codePointAt(0)! > 127) {
+			messageLayout.classList.add('info-layout--active');
+		} else messageLayout.classList.remove('info-layout--active');
 
-		if (typedLetter !== currentLetter) {
-			letterEl.dataset.letter = 'incorrect';
+		if (letterEl !== undefined) {
+			if (typedLetter === currentLetter) {
+				letterEl.dataset.letter = 'correct';
+				increaseScore();
+			}
+
+			if (typedLetter !== currentLetter) {
+				letterEl.dataset.letter = 'incorrect';
+			}
 		}
 	}
 
@@ -108,7 +120,7 @@
 
 	function moveCaret(whitespace?: string) {
 		const offset = 2;
-		const { offsetTop, offsetLeft, offsetWidth } = letterEl;
+		const { offsetTop, offsetLeft, offsetWidth } = letterEl!;
 
 		caretEl.style.top = `${offsetTop}px`;
 
@@ -130,7 +142,7 @@
 
 	function setGameTimer() {
 		function gameTimer() {
-			if (seconds > 0) {
+			if (game !== 'paused' && seconds > 0) {
 				seconds -= 1;
 			}
 
@@ -142,6 +154,7 @@
 				inputEl.disabled = true;
 				setGameState('game over');
 				getResults();
+				dialog.showModal();
 			}
 		}
 
@@ -157,7 +170,7 @@
 	}
 
 	function handleKeydown(event: KeyboardEvent) {
-		if (game === 'waiting for input') {
+		if (event.key !== 'Escape' && game === 'waiting for input') {
 			startGame();
 		}
 
@@ -185,6 +198,27 @@
 		$precision = getPrecision();
 	}
 
+	function pauseGame(e: KeyboardEvent) {
+		if (e.key === 'Escape') {
+			e.preventDefault();
+			switch (game) {
+				case 'waiting for input':
+					game = 'paused';
+					dialog.showModal();
+					break;
+				case 'in progress':
+					game = 'paused';
+					dialog.showModal();
+					break;
+				case 'paused':
+					if (!letterEl) game = 'waiting for input';
+					else game = 'in progress';
+					dialog.close();
+					break;
+			}
+		}
+	}
+
 	onMount(() => {
 		focusInput();
 	});
@@ -194,9 +228,13 @@
 	<title>Sveltic Gam8s: Typing Race</title>
 </svelte:head>
 
+<svelte:window on:keydown={pauseGame} />
+
 <div class="header">
 	<h2>Typing race</h2>
-	<p class="timer" class:timer--active={game === 'in progress'}>Time:<span>{seconds}</span></p>
+	<p class="timer" class:timer--active={game !== 'waiting for input' && letterEl}>
+		Time:<span>{seconds}</span>
+	</p>
 </div>
 
 <input
@@ -222,11 +260,18 @@
 	</div>
 {/key}
 
-<button class="nes-btn is-primary restart-btn" on:click={resetGame}>Restart</button>
+<div class="info">
+	<p class="info-start" class:info-start--active={letterEl}>Let's typing for start</p>
+	<p class="info-layout" bind:this={messageLayout}>Change your keyboard layout to English</p>
+</div>
 
-{#if game === 'game over'}
-	<dialog class="nes-dialog" open>
-		<form method="dialog">
+<Dialog bind:dialog>
+	<div slot="content">
+		{#if game === 'paused'}
+			<h2>Game paused</h2>
+		{/if}
+		{#if game === 'game over'}
+			<h2 style="color: var(--color-blue); text-transform: uppercase;">Your results</h2>
 			<div class="results">
 				<div class="result">
 					<p class="title">wpm</p>
@@ -237,25 +282,45 @@
 					<p class="score">{Math.trunc($precision)}%</p>
 				</div>
 			</div>
+		{/if}
+	</div>
 
-			<menu class="dialog-menu">
-				<button class="nes-btn is-primary" on:click={resetGame}>Try again</button>
-				<a href="/" class="nes-btn">Main menu</a>
-			</menu>
-		</form>
-	</dialog>
-{/if}
+	{#if game === 'paused'}
+		<button
+			class="nes-btn"
+			on:click={() => {
+				game = 'in progress';
+				dialog.close();
+			}}
+		>
+			Continue
+		</button>
+
+		<button
+			class="nes-btn"
+			on:click={() => {
+				game = 'waiting for input';
+				dialog.close();
+				resetGame();
+			}}
+		>
+			New game
+		</button>
+	{:else}
+		<button
+			class="nes-btn"
+			on:click={() => {
+				game = 'waiting for input';
+				dialog.close();
+				resetGame();
+			}}
+		>
+			Play&nbsp;again
+		</button>
+	{/if}
+</Dialog>
 
 <style>
-	.timer {
-		opacity: 0;
-		transition: all 0.3s ease;
-	}
-
-	.timer--active {
-		opacity: 1;
-	}
-
 	.words {
 		--line-height: 1em;
 		--lines: 5;
@@ -289,7 +354,7 @@
 	}
 
 	:global(.letter[data-letter='incorrect']) {
-		color: #e76e55;
+		color: var(--color-red);
 		opacity: 1;
 	}
 
@@ -314,27 +379,12 @@
 		}
 	}
 
-	.restart-btn {
-		align-self: start;
-		display: block;
-		margin: 6rem auto 0.4rem auto;
-	}
-
-	:global(.nes-dialog) {
-		min-width: 320px;
-		width: 38%;
-	}
-
 	:global(.results) {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		height: 240px;
+		margin-bottom: 1rem;
 		text-align: center;
-	}
-
-	:global(.result) {
-		margin-bottom: 0.6rem;
 	}
 
 	:global(.result .title) {
@@ -344,19 +394,38 @@
 	}
 
 	:global(.results .score) {
+		margin-bottom: 0.6rem;
 		font-size: 1.6rem;
-		color: #e76e55;
+		color: var(--color-red);
 	}
 
-	:global(.dialog-menu) {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 1rem;
-		padding: 0;
+	.info {
+		position: relative;
 	}
 
-	:global(.dialog-menu button) {
-		width: 180px;
+	.info-start,
+	.info-layout {
+		position: absolute;
+		width: 100%;
+		text-align: center;
+		transition: all 0.2s ease;
+	}
+
+	.info-start {
+		color: var(--color-blue);
+		opacity: 1;
+
+		&.info-start--active {
+			opacity: 0;
+		}
+	}
+
+	.info-layout {
+		color: var(--color-red);
+		opacity: 0;
+
+		&.info-layout--active {
+			opacity: 1;
+		}
 	}
 </style>
