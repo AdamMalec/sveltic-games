@@ -19,5 +19,5 @@ canvas {
 }
 
 .nes-btn:focus {
-	box-shadow: 0 0 0 6px hsla(201, 100%, 39%, 0.6);
+	box-shadow: 0 0 0 6px var(--color-blue);
 }

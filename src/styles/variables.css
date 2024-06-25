@@ -1,13 +1,12 @@
 :root {
 	/* colors */
-	--color-blue: hsl(201, 100%, 39%);
-	--color-black: hsl(0, 0%, 3%);
-	--color-red: hsl(352, 79%, 56%);
-	--color-yellow: hsl(38, 97%, 59%);
-	--color-green: hsl(150, 100%, 33%);
+	--color-blue: hsl(204, 86%, 53%);
+	--color-red: hsl(4, 65%, 49%);
+	--color-yellow: hsl(48, 93%, 49%);
+	--color-green: hsl(96, 52%, 51%);
+	--color-black: hsl(0, 0%, 12%);
 	--color-gray: hsl(210, 2%, 57%);
-
-	--color-bg-1: paleGreen;
+	--color-white: hsl(0, 0%, 97%);
 	--color-bg-2: wheat;
 
 	/* sizes */
